@@ -8,8 +8,10 @@ import androidx.navigation.compose.composable
 import com.example.threads.screens.AddThreads
 import com.example.threads.screens.BottomNav
 import com.example.threads.screens.Home
+import com.example.threads.screens.LoginUI
 import com.example.threads.screens.Notifications
 import com.example.threads.screens.Profile
+import com.example.threads.screens.RegisterUI
 import com.example.threads.screens.Search
 import com.example.threads.screens.Splash
 
@@ -44,6 +46,14 @@ fun NavGraph(navController: NavHostController) {
 
         composable(Routes.BottomNav.routes){
             BottomNav(navController)
+        }
+
+        composable(Routes.Login.routes){
+            LoginUI(navController)
+        }
+
+        composable(Routes.Register.routes){
+            RegisterUI(navController)
         }
     }
 }

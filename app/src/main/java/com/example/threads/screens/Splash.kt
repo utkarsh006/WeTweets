@@ -20,6 +20,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.example.threads.R
 import com.example.threads.navigation.Routes
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
 
 @Composable
@@ -30,7 +31,19 @@ fun Splash(navController: NavHostController) {
     ) {
         LaunchedEffect(true) {
             delay(3000)
-            navController.navigate(Routes.BottomNav.routes)
+
+            //check here, if the user is logged in or not
+            if (FirebaseAuth.getInstance().currentUser != null) {
+                navController.navigate(Routes.BottomNav.routes) {
+                    popUpTo(navController.graph.startDestinationId)
+                    launchSingleTop = true
+                }
+            } else {
+                navController.navigate(Routes.Login.routes) {
+                    popUpTo(navController.graph.startDestinationId)
+                    launchSingleTop = true
+                }
+            }
         }
 
         Image(
