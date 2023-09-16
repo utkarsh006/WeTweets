@@ -6,6 +6,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.threads.screens.AddThreads
+import com.example.threads.screens.BottomNav
 import com.example.threads.screens.Home
 import com.example.threads.screens.Notifications
 import com.example.threads.screens.Profile
@@ -18,7 +19,7 @@ fun NavGraph(navController: NavHostController) {
     NavHost(navController = navController, startDestination = Routes.Splash.routes){
 
         composable(Routes.Splash.routes){
-            Splash()
+            Splash(navController)
         }
 
         composable(Routes.Home.routes){
@@ -39,6 +40,10 @@ fun NavGraph(navController: NavHostController) {
 
         composable(Routes.AddThread.routes){
             AddThreads()
+        }
+
+        composable(Routes.BottomNav.routes){
+            BottomNav(navController)
         }
     }
 }
