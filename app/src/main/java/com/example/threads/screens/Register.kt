@@ -1,5 +1,10 @@
 package com.example.threads.screens
 
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -28,13 +33,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import com.example.threads.R
 import com.example.threads.navigation.Routes
@@ -48,6 +54,29 @@ fun RegisterUI(navHostController: NavHostController) {
     var name by remember { mutableStateOf("") }
     var bio by remember { mutableStateOf("") }
     var username by remember { mutableStateOf("") }
+    var imageUri by remember { mutableStateOf<Uri?>(null) }
+
+    val context = LocalContext.current
+
+    val permissionToRequest = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        android.Manifest.permission.READ_MEDIA_IMAGES
+    } else {
+        android.Manifest.permission.READ_EXTERNAL_STORAGE
+    }
+
+    val launcher =
+        rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()) { uri: Uri? ->
+            imageUri = uri
+        }
+
+    val permissionLauncher =
+        rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
+            if (isGranted) {
+
+            } else {
+
+            }
+        }
 
     Column(
         modifier = Modifier
@@ -71,7 +100,19 @@ fun RegisterUI(navHostController: NavHostController) {
                 .size(96.dp)
                 .clip(CircleShape)
                 .background(Color.LightGray)
-                .clickable {  },
+                .clickable {
+                    val isGranted = ContextCompat.checkSelfPermission(
+                        context, permissionToRequest
+                    ) == PackageManager.PERMISSION_GRANTED
+
+                    if(isGranted){
+                        //launch the image
+                        launcher.launch("image/*")
+                    } else{
+                        //launch permissions
+                        permissionLauncher.launch(permissionToRequest)
+                    }
+                },
             contentScale = ContentScale.Crop
         )
 
