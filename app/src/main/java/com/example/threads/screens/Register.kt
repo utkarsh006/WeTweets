@@ -25,6 +25,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -85,6 +86,13 @@ fun RegisterUI(navHostController: NavHostController) {
 
             }
         }
+
+    LaunchedEffect(firebaseUser != null){
+        navHostController.navigate(Routes.BottomNav.routes) {
+            popUpTo(navHostController.graph.startDestinationId)
+            launchSingleTop = true
+        }
+    }
 
     Column(
         modifier = Modifier
