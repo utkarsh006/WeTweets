@@ -78,6 +78,12 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore-ktx")
     implementation("com.google.firebase:firebase-storage-ktx")
 
+    implementation("io.coil-kt:coil-compose:2.4.0")
+
+    implementation("androidx.compose.runtime:runtime-livedata:1.5.1")
+
+
+
 
 
 }

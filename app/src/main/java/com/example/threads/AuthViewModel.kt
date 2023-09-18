@@ -1,11 +1,16 @@
 package com.example.threads
 
+import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.threads.model.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
+import java.util.UUID
 
 class AuthViewModel : ViewModel() {
     val auth = FirebaseAuth.getInstance()
@@ -18,29 +23,77 @@ class AuthViewModel : ViewModel() {
     private val _error = MutableLiveData<String>()
     val error: LiveData<String> = _error
 
+    private val storageRef = Firebase.storage.reference
+    private val imageRef = storageRef.child("users/${UUID.randomUUID()}.jpg")
+
     //initialising the firebase user
     init {
         _firebaseUser.value = auth.currentUser
     }
 
     fun login(email: String, password: String) {
-        auth.signInWithEmailAndPassword(email,password).addOnCompleteListener {
-            if(it.isSuccessful){
+        auth.signInWithEmailAndPassword(email, password).addOnCompleteListener {
+            if (it.isSuccessful) {
                 _firebaseUser.postValue(auth.currentUser)
-            } else{
+            } else {
                 _error.postValue("Something went Wrong!")
             }
         }
     }
 
-    fun register(email: String, password: String, name: String, bio: String, userName: String) {
-        auth.createUserWithEmailAndPassword(email,password).addOnCompleteListener {
-            if(it.isSuccessful){
+    fun register(
+        email: String,
+        password: String,
+        name: String,
+        bio: String,
+        userName: String,
+        imageUri: Uri
+    ) {
+        auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener {
+            if (it.isSuccessful) {
                 _firebaseUser.postValue(auth.currentUser)
-            } else{
+                saveImage(email, password, name, bio, userName, imageUri, auth.currentUser?.uid)
+            } else {
                 _error.postValue("Something went Wrong!")
             }
         }
+    }
+
+    private fun saveImage(
+        email: String,
+        password: String,
+        name: String,
+        bio: String,
+        userName: String,
+        imageUri: Uri,
+        uid: String?
+    ) {
+        val uploadTask = imageRef.putFile(imageUri)
+        uploadTask.addOnSuccessListener {
+
+            imageRef.downloadUrl.addOnSuccessListener {
+                saveData(email, password, name, bio, userName, it.toString(), uid)
+            }
+        }
+    }
+
+    private fun saveData(
+        email: String,
+        password: String,
+        name: String,
+        bio: String,
+        userName: String,
+        imgUrl: String,
+        uid: String?
+    ) {
+        val userData = User(email, password, name, bio, userName, imgUrl)
+
+        userRef.child(uid!!).setValue(userData)
+            .addOnSuccessListener {
+
+            }.addOnFailureListener { 
+
+            }
     }
 
 }

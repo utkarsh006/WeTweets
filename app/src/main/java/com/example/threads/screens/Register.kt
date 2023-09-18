@@ -3,6 +3,7 @@ package com.example.threads.screens
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -25,6 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -41,7 +43,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import coil.compose.rememberAsyncImagePainter
+import com.example.threads.AuthViewModel
 import com.example.threads.R
 import com.example.threads.navigation.Routes
 
@@ -55,6 +60,9 @@ fun RegisterUI(navHostController: NavHostController) {
     var bio by remember { mutableStateOf("") }
     var username by remember { mutableStateOf("") }
     var imageUri by remember { mutableStateOf<Uri?>(null) }
+
+    val authViewModel: AuthViewModel = viewModel()
+    val firebaseUser by authViewModel.firebaseUser.observeAsState(null)
 
     val context = LocalContext.current
 
@@ -94,7 +102,11 @@ fun RegisterUI(navHostController: NavHostController) {
         Spacer(modifier = Modifier.height(25.dp))
 
         Image(
-            painter = painterResource(id = R.drawable.user),
+            painter = if (imageUri == null) {
+                painterResource(id = R.drawable.user)
+            } else {
+                rememberAsyncImagePainter(model = imageUri)
+            },
             contentDescription = "user",
             modifier = Modifier
                 .size(96.dp)
@@ -105,10 +117,10 @@ fun RegisterUI(navHostController: NavHostController) {
                         context, permissionToRequest
                     ) == PackageManager.PERMISSION_GRANTED
 
-                    if(isGranted){
+                    if (isGranted) {
                         //launch the image
                         launcher.launch("image/*")
-                    } else{
+                    } else {
                         //launch permissions
                         permissionLauncher.launch(permissionToRequest)
                     }
@@ -176,7 +188,11 @@ fun RegisterUI(navHostController: NavHostController) {
         Spacer(modifier = Modifier.height(30.dp))
 
         ElevatedButton(onClick = {
-
+            if (name.isEmpty() || email.isEmpty() || bio.isEmpty() || password.isEmpty() || imageUri == null) {
+                Toast.makeText(context, "Fill all details", Toast.LENGTH_SHORT).show()
+            } else {
+                authViewModel.register(email, password, name, bio, username, imageUri!!)
+            }
         }, modifier = Modifier.fillMaxWidth()) {
             Text(
                 text = "Register",
