@@ -1,10 +1,12 @@
 package com.example.threads
 
+import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.threads.model.User
+import com.example.threads.utils.SharedPref
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.FirebaseDatabase
@@ -47,12 +49,13 @@ class AuthViewModel : ViewModel() {
         name: String,
         bio: String,
         userName: String,
-        imageUri: Uri
+        imageUri: Uri,
+        context: Context
     ) {
         auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener {
             if (it.isSuccessful) {
                 _firebaseUser.postValue(auth.currentUser)
-                saveImage(email, password, name, bio, userName, imageUri, auth.currentUser?.uid)
+                saveImage(email, password, name, bio, userName, imageUri, auth.currentUser?.uid, context)
             } else {
                 _error.postValue("Something went Wrong!")
             }
@@ -66,13 +69,14 @@ class AuthViewModel : ViewModel() {
         bio: String,
         userName: String,
         imageUri: Uri,
-        uid: String?
+        uid: String?,
+        context: Context
     ) {
         val uploadTask = imageRef.putFile(imageUri)
         uploadTask.addOnSuccessListener {
 
             imageRef.downloadUrl.addOnSuccessListener {
-                saveData(email, password, name, bio, userName, it.toString(), uid)
+                saveData(email, password, name, bio, userName, it.toString(), uid, context)
             }
         }
     }
@@ -84,14 +88,17 @@ class AuthViewModel : ViewModel() {
         bio: String,
         userName: String,
         imgUrl: String,
-        uid: String?
+        uid: String?,
+        context: Context
     ) {
         val userData = User(email, password, name, bio, userName, imgUrl)
 
         userRef.child(uid!!).setValue(userData)
             .addOnSuccessListener {
+                //if user is successfully registered, then store their data in shared preferences
+                SharedPref.storeData(email,name,bio,userName,imgUrl,context)
 
-            }.addOnFailureListener { 
+            }.addOnFailureListener {
 
             }
     }

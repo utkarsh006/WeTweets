@@ -191,7 +191,7 @@ fun RegisterUI(navHostController: NavHostController) {
             if (name.isEmpty() || email.isEmpty() || bio.isEmpty() || password.isEmpty() || imageUri == null) {
                 Toast.makeText(context, "Fill all details", Toast.LENGTH_SHORT).show()
             } else {
-                authViewModel.register(email, password, name, bio, username, imageUri!!)
+                authViewModel.register(email, password, name, bio, username, imageUri!!, context)
             }
         }, modifier = Modifier.fillMaxWidth()) {
             Text(
