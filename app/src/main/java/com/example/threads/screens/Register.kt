@@ -87,11 +87,14 @@ fun RegisterUI(navHostController: NavHostController) {
             }
         }
 
-    LaunchedEffect(firebaseUser != null){
-        navHostController.navigate(Routes.BottomNav.routes) {
-            popUpTo(navHostController.graph.startDestinationId)
-            launchSingleTop = true
+    LaunchedEffect(firebaseUser) {
+        if (firebaseUser != null) {
+            navHostController.navigate(Routes.BottomNav.routes) {
+                popUpTo(navHostController.graph.startDestinationId)
+                launchSingleTop = true
+            }
         }
+
     }
 
     Column(

@@ -117,7 +117,5 @@ fun BottomBarUI(_navController: NavHostController) {
                 icon = { Icon(imageVector = it.icon, contentDescription = it.title) }
             )
         }
-
-
     }
 }
