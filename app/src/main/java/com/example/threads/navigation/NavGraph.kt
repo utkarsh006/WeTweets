@@ -33,7 +33,7 @@ fun NavGraph(navController: NavHostController) {
         }
 
         composable(Routes.Profile.routes){
-            Profile()
+            Profile(navController)
         }
 
         composable(Routes.Search.routes){

@@ -94,7 +94,6 @@ fun RegisterUI(navHostController: NavHostController) {
                 launchSingleTop = true
             }
         }
-
     }
 
     Column(

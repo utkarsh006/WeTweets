@@ -81,6 +81,7 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.4.0")
 
     implementation("androidx.compose.runtime:runtime-livedata:1.5.1")
+    implementation("androidx.core:core-splashscreen:1.0.1")
 
 
 
