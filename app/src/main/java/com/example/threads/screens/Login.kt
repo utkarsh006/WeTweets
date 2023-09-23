@@ -8,9 +8,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.progressSemantics
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -20,6 +24,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,6 +38,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.threads.AuthViewModel
 import com.example.threads.navigation.Routes
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -40,6 +47,10 @@ fun LoginUI(navController: NavHostController) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val context = LocalContext.current
+
+    var currentProgress by remember { mutableStateOf(0.7f) }
+    var loading by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
 
     val authViewModel: AuthViewModel = viewModel()
     val firebaseUser by authViewModel.firebaseUser.observeAsState(null)
@@ -101,7 +112,13 @@ fun LoginUI(navController: NavHostController) {
         Spacer(modifier = Modifier.height(30.dp))
 
         ElevatedButton(onClick = {
-
+            loading = true
+            scope.launch {
+                loadProgress { progress ->
+                    currentProgress = progress
+                }
+                loading = false // Reset loading when the coroutine finishes
+            }
             if (email.isEmpty() || password.isEmpty()) {
                 Toast.makeText(context, "Enter all details", Toast.LENGTH_SHORT).show()
             } else {
@@ -113,6 +130,16 @@ fun LoginUI(navController: NavHostController) {
                 text = "Login",
                 style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 20.sp),
                 modifier = Modifier.padding(vertical = 6.dp)
+            )
+        }
+
+        if (loading) {
+            Spacer(modifier = Modifier.height(20.dp))
+            CircularProgressIndicator(
+                modifier = Modifier
+                    .progressSemantics()
+                    .size(32.dp),
+                progress = currentProgress
             )
         }
 
@@ -130,5 +157,12 @@ fun LoginUI(navController: NavHostController) {
             )
         }
 
+    }
+}
+
+suspend fun loadProgress(updateProgress: (Float) -> Unit) {
+    for (i in 1..100) {
+        updateProgress(i.toFloat() / 100)
+        delay(100)
     }
 }
