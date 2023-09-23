@@ -71,7 +71,6 @@ fun LoginUI(navController: NavHostController) {
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-
         if (loading) {
             CircularProgressIndicator(
                 modifier = Modifier
