@@ -2,6 +2,7 @@ package com.example.threads.screens
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,7 +15,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -70,94 +70,98 @@ fun LoginUI(navController: NavHostController) {
         Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-
-        Text(
-            text = "Enter Login Credentials",
-            style = TextStyle(fontWeight = FontWeight.ExtraBold, fontSize = 24.sp)
-        )
-
-        Spacer(modifier = Modifier.height(50.dp))
-
-        OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
-            label = {
-                Text(text = "Email")
-            },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
-            label = {
-                Text(text = "Password")
-            },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(30.dp))
-
-        ElevatedButton(onClick = {
-            loading = true
-            scope.launch {
-                loadProgress { progress ->
-                    currentProgress = progress
-                }
-                loading = false // Reset loading when the coroutine finishes
-            }
-            if (email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(context, "Enter all details", Toast.LENGTH_SHORT).show()
-            } else {
-                authViewModel.login(email, password, context)
-            }
-
-        }, modifier = Modifier.fillMaxWidth()) {
-            Text(
-                text = "Login",
-                style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 20.sp),
-                modifier = Modifier.padding(vertical = 6.dp)
-            )
-        }
-
+    Box(modifier = Modifier.fillMaxSize()) {
         if (loading) {
-            Spacer(modifier = Modifier.height(20.dp))
             CircularProgressIndicator(
                 modifier = Modifier
+                    .align(Alignment.Center)
                     .progressSemantics()
-                    .size(32.dp),
+                    .size(60.dp),
                 progress = currentProgress
             )
-        }
+        } else {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
 
-        Spacer(modifier = Modifier.height(10.dp))
+                Text(
+                    text = "Enter Login Credentials",
+                    style = TextStyle(fontWeight = FontWeight.ExtraBold, fontSize = 24.sp)
+                )
 
-        TextButton(onClick = {
-            navController.navigate(Routes.Register.routes) {
-                popUpTo(navController.graph.startDestinationId)
-                launchSingleTop = true
+                Spacer(modifier = Modifier.height(50.dp))
+
+                OutlinedTextField(
+                    value = email,
+                    onValueChange = { email = it },
+                    label = {
+                        Text(text = "Email")
+                    },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = {
+                        Text(text = "Password")
+                    },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(30.dp))
+
+                ElevatedButton(onClick = {
+
+                    if (email.isEmpty() || password.isEmpty()) {
+                        Toast.makeText(context, "Enter all details", Toast.LENGTH_SHORT).show()
+                    } else {
+                        authViewModel.login(email, password, context)
+                        loading = true
+                        scope.launch {
+                            loadProgress { progress ->
+                                currentProgress = progress
+                            }
+                            loading = false // Reset loading when the coroutine finishes
+                        }
+                    }
+
+                }, modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        text = "Login",
+                        style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 20.sp),
+                        modifier = Modifier.padding(vertical = 6.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                TextButton(onClick = {
+                    navController.navigate(Routes.Register.routes) {
+                        popUpTo(navController.graph.startDestinationId)
+                        launchSingleTop = true
+                    }
+                }, modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        text = "New User? Create Account",
+                        style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    )
+                }
+
             }
-        }, modifier = Modifier.fillMaxWidth()) {
-            Text(
-                text = "New User? Create Account",
-                style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 16.sp)
-            )
         }
-
     }
+
 }
 
 suspend fun loadProgress(updateProgress: (Float) -> Unit) {

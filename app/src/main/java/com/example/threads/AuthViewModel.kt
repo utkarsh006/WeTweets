@@ -2,6 +2,7 @@ package com.example.threads
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -81,8 +82,15 @@ class AuthViewModel : ViewModel() {
         imageUri: Uri,
         context: Context
     ) {
-        auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener {
-            if (it.isSuccessful) {
+        auth.createUserWithEmailAndPassword(email, password)
+            .addOnFailureListener {
+                //Log.d("utk", "FAILURE: ${it.message}")
+                _error.postValue(it.message)
+            }
+            .addOnSuccessListener {
+                //Log.d("utk", it.user?.email.toString())
+                //Log.d("utk", auth.currentUser?.email.toString())
+
                 _firebaseUser.postValue(auth.currentUser)
                 saveImage(
                     email,
@@ -94,10 +102,7 @@ class AuthViewModel : ViewModel() {
                     auth.currentUser?.uid,
                     context
                 )
-            } else {
-                _error.postValue("Something went Wrong!")
             }
-        }
     }
 
     private fun saveImage(
